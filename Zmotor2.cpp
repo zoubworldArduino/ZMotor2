@@ -66,7 +66,7 @@ Zmotor2::Zmotor2() : PinExtender(),  io(),  pwm()
 
   void Zmotor2::begin(void)
   {
-	  begin(&Wire, 0x00);
+	  begin( 0x00);
   }
   
 
