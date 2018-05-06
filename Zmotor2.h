@@ -88,7 +88,7 @@ class Zmotor2 : public PinExtender  {
  public:
  Zmotor2();
   void begin(TwoWire *MyWire,uint8_t addr1);
-   void Zmotor2::begin(TwoWire *i2c,uint8_t addrio,uint8_t addrpwm);
+   void begin(TwoWire *i2c,uint8_t addrio,uint8_t addrpwm);
   void begin(uint8_t addr,uint8_t addr2);
   void begin(uint8_t addr);
   void begin(void);
@@ -109,7 +109,7 @@ bool check();
   void analogWriteResolution(int res);
 
   
- uint32_t Zmotor2::getPin(uint32_t ulPin);
+ uint32_t getPin(uint32_t ulPin);
   void reset(void);
  
   uint32_t analogRead( uint32_t pin );
