@@ -17,12 +17,41 @@
 
 #ifndef _ZMOTOR_H
 #define _ZMOTOR_H
+#define ROS_USED
+
+#ifdef ROS_USED 
+#include <ros.h>
+#include <ros/time.h>
+#include <std_msgs/Int16.h>
+#endif 
 
 
 #include "PinExtender.h"
 #include <ZMCP23017.h>
 #include <ZPCA9685.h>
     
+#define MOTOR2_0 0
+#define MOTOR2_1 1
+#define MOTOR2_2 2
+#define MOTOR2_3 3
+#define MOTOR2_4 4
+#define MOTOR2_5 5
+#define MOTOR2_6 6
+#define MOTOR2_7 7
+#define MOTOR2_8 8
+#define MOTOR2_9 9
+#define MOTOR2_10 10
+#define MOTOR2_11 11
+#define MOTOR2_12 12
+#define MOTOR2_13 13
+#define MOTOR2_14 14
+#define MOTOR2_15 15
+#define MOTOR2_A MOTOR2_10
+#define MOTOR2_B MOTOR2_11
+#define MOTOR2_C MOTOR2_12
+#define MOTOR2_D MOTOR2_13
+#define MOTOR2_E MOTOR2_14
+#define MOTOR2_F MOTOR2_15
 
 #define MCP23017_ADDR_BASE 0x20
 #define PCA9685_ADDR_BASE 0x40
@@ -115,13 +144,26 @@ bool check();
   uint32_t analogRead( uint32_t pin );
 
   void setPWMFreq(float freq);
+  
+  void cmd( uint32_t ulPin, int32_t ulValue ) ;
+ 
+ #ifdef ROS_USED 
+    void setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,void callbackinstance( const std_msgs::Int16& cmd_msg),int pin);
+	void setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,int pin);
+	void loop();
+#endif 
+
   protected:
        bool acceptlocal(uint32_t p);
  private: 
+ 
+  #ifdef ROS_USED 
+    ros::NodeHandle  *nh;    
+    ros::Subscriber<std_msgs::Int16> *subscriber[16];
+#endif
  ZPCA9685  pwm;
  ZMCP23017  io;
  
-  
 };
 
 

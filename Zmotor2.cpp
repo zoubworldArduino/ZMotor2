@@ -14,12 +14,15 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
+#include <assert.h>
 
 #include "zmotor2.h"
 
 #include <Wire.h>
 
 #include "PinExtender.h"
+#define DEBUG(a) a
+//#define DEBUG(a) {}
 
 /**************************************************************************/
 /*! 
@@ -43,10 +46,14 @@ Zmotor2::Zmotor2() : PinExtender(),  io(),  pwm()
   }
  void Zmotor2::begin(TwoWire *i2c,uint8_t addrio,uint8_t addrpwm)
   {
+    i2c->begin();
 	  io.begin(i2c, addrio);
       pwm.begin(i2c, addrpwm);
     for (int i=0;i<16;i++)
      io.pinMode(io.getPin(i), OUTPUT);
+	 pwm.analogWriteResolution( 12);
+	 pwm.setPWMFreq(1526);
+	 
 }
 /**************************************************************************/
 /*! 
@@ -150,7 +157,25 @@ else
 		 _next->analogWrite( ulPin,ulValue);		
 	
  }
-
+void Zmotor2::cmd( uint32_t ulchannel, int32_t siValue ) 
+{
+	uint32_t ulPinpwm=pwm.getPin(ulchannel);//MOTOR2_0
+	uint32_t ulPinio=io.getPin(ulchannel);//MOTOR2_0
+	if(siValue>=0)
+	{
+	analogWrite(  ulPinpwm,  siValue ) ;
+	digitalWrite( ulPinio,  LOW);
+	}
+	else
+	{
+		siValue=4096- siValue;
+		if(siValue<0)
+			siValue=0;
+	analogWrite(  ulPinpwm, siValue  ) ;
+	digitalWrite( ulPinio, HIGH);
+	}
+	
+}
 
  uint32_t Zmotor2::getPin(uint32_t ulPin)
  {
@@ -185,3 +210,113 @@ else
 	else if (_next)
 		 _next->digitalWrite( ulPin,ulValue);		
 }
+
+
+
+
+#ifdef ROS_USED 
+
+Zmotor2 * myZmotor2;
+static void callbackinstance0( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(0,cmd_msg.data); 
+}
+static void callbackinstance1( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(1,cmd_msg.data); 
+}
+static void callbackinstance2( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(2,cmd_msg.data); 
+}
+static void callbackinstance3( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(3,cmd_msg.data); 
+}
+
+static void callbackinstance4( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(4,cmd_msg.data); 
+}
+static void callbackinstance5( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(5,cmd_msg.data); 
+}
+static void callbackinstance6( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(6,cmd_msg.data); 
+}
+static void callbackinstance7( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(7,cmd_msg.data); 
+}
+static void callbackinstance8( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(8,cmd_msg.data); 
+}
+static void callbackinstance9( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(9,cmd_msg.data); 
+}
+static void callbackinstance10( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(10,cmd_msg.data); 
+}
+static void callbackinstance11( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(11,cmd_msg.data); 
+}
+static void callbackinstance12( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(12,cmd_msg.data); 
+}
+static void callbackinstance13( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(13,cmd_msg.data); 
+}
+static void callbackinstance14( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(14,cmd_msg.data); 
+}
+static void callbackinstance15( const std_msgs::Int16& cmd_msg)
+{	
+myZmotor2->cmd(15,cmd_msg.data);    
+}
+
+static void(*callback[16])(const std_msgs::Int16& cmd_msg)={
+	callbackinstance0,callbackinstance1,callbackinstance2,callbackinstance3,
+	callbackinstance4,callbackinstance5,callbackinstance6,callbackinstance7,
+	callbackinstance8,callbackinstance9,callbackinstance10,callbackinstance11,
+	callbackinstance12,callbackinstance13,callbackinstance14,callbackinstance15	
+	};
+
+void Zmotor2::setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,int pin)
+{
+setup( myNodeHandle,		topic ,callback[pin], pin);
+}
+static  int index=0;
+// ROS SECTION :
+//char frameid[] = "/ir_ranger";
+/** setup :
+  At setup after NodeHandle setup, call this to initialise the topic
+*/
+void Zmotor2::setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,void callbackinstance( const std_msgs::Int16& cmd_msg),int pin)
+{
+    assert(index<16);
+	myZmotor2= this;
+	pin=pin&0xf;
+  nh=myNodeHandle;
+  subscriber[pin]=new ros::Subscriber<std_msgs::Int16> (topic, callbackinstance); 
+  nh->subscribe(*subscriber[pin]); 
+  DEBUG(nh->loginfo("Zmotor2::setup()")); 
+  DEBUG(nh->loginfo(topic)); 
+  index++;
+}
+/** loop :
+  on loop  before NodeHandle refresh(spinOnce), call this to update the topic
+*/
+void Zmotor2::loop()
+{
+	//nothing to do just keep for compatibility with others.
+}
+#endif 
