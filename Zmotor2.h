@@ -1,23 +1,13 @@
-/*************************************************** 
-  This is a library for our Adafruit 16-channel PWM & Servo driver
 
-  Pick one up today in the adafruit shop!
-  ------> http://www.adafruit.com/products/815
-
-  These displays use I2C to communicate, 2 pins are required to  
-  interface. For Arduino UNOs, thats SCL -> Analog 5, SDA -> Analog 4
-
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution
- ****************************************************/
 /** @file Zmotor2.h
    
-   this lib support a board called Motor2 based on MCP23017 and PCA9685.
-   this board offer 16 motor channel.
+   @par dependency :
+   this library use the folowing ones :   ZMCP23017, ZPCA9685, PinExtender,Rosserial_Arduino_Library
+   you can find it on https://github.com/zoubworldArduino/
+   
+   @par description
+   This lib support a board called Motor2-A based on MCP23017 and PCA9685 with a L9110 as power stage.
+   This board offers 16 motor channels 5-12V up to 5/800mA.
    Each channel have 2 pin, one where we can apply LOW or HIGH level thanks to digitalWrite(), and one where we can apply PWM value thanks to analogWrite()
    The pin can be identify by the generic name like #PIN_MOTOR2_IO_0 #PIN_MOTOR2_PWM_0, in this case you have to do instanceBoard.digitalWrite(PIN_MOTOR2_IO_0,LOW)
    The pin can be identify by the instance name like pin=instanceBoard.getpin(#PIN_MOTOR2_IO_0) or pin=instanceBoard.getpinIo(MOTOR2_0) or  or pin=instanceBoard.getpinPwm(MOTOR2_0),
@@ -33,6 +23,26 @@
    The name #PIN_MOTOR2_IO_0 can be replace by MOTOR2_IO[0].
    The name #PIN_MOTOR2_PWM_0 can be replace by MOTOR2_PWM[0].
    
+   Release A of board:
+   - a bug on the board limit the channel to the even only, so only 8 channel
+   - note the True table of L9110 isn't as writen in datasheet :
+   |   Input A      |    input B        |  output A    |   output B   |
+   |----------------|-------------------|--------------|--------------|
+   |      0         |       0           |   LOW        |    LOW       |
+   |      0         |       1           |   LOW        |    HIGH      |
+   |      1         |       0           |   HIGH       |    LOW       |
+   |      1         |       1           |   LOW        |    LOW       |
+   |                |                   |              |              |
+   but 
+   |   Input A      |    input B        |  output A    |   output B   |
+   |----------------|-------------------|--------------|--------------|
+   |      0         |       0           |HIGH IMPEDENCE|HIGH INPEDENCE|
+   |      0         |       1           |   LOW        |    HIGH      |
+   |      1         |       0           |   HIGH       |    LOW       |
+   |      1         |       1           |HIGH IMPEDENCE|HIGH IMPEDENCE|
+   |                |                   |              |              |
+   Release B of board:
+   the bug is fix but the library must be differents.
    */
 #ifndef _ZMOTOR_H
 #define _ZMOTOR_H
