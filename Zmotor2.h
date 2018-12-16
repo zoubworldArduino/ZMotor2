@@ -14,7 +14,26 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-
+/** @file Zmotor2.h
+   
+   this lib support a board called Motor2 based on MCP23017 and PCA9685.
+   this board offer 16 motor channel.
+   Each channel have 2 pin, one where we can apply LOW or HIGH level thanks to digitalWrite(), and one where we can apply PWM value thanks to analogWrite()
+   The pin can be identify by the generic name like #PIN_MOTOR2_IO_0 #PIN_MOTOR2_PWM_0, in this case you have to do instanceBoard.digitalWrite(PIN_MOTOR2_IO_0,LOW)
+   The pin can be identify by the instance name like pin=instanceBoard.getpin(#PIN_MOTOR2_IO_0) or pin=instanceBoard.getpinIo(MOTOR2_0) or  or pin=instanceBoard.getpinPwm(MOTOR2_0),
+   in this case you have to do digitalWrite(pin,LOW); from arduino API, this offer a compatibility with any library, but before you should link your board to arduino API by calling setPinExtender(&instanceBoard);
+   if you have 2 board, then do it :instanceBoard.setPinExtender(&instanceBoard_2);
+   
+   generic name is used inside the instance of board, and the instance pin name allow to use generic arduino IPA, it content on it the I2C addresse of the device and the channel.
+   note that instanceBoard.getpin() must be called after instanceBoard creation and initialisation with begin(), the pin number is a 32bit number.
+   
+   The cmd(channel, pwm) function allow to manage easly the motor control, channel is between  0 and 15 like on skillprint of the board.
+   The pwm value is between -4096 and 4095, 0 give no power.
+   
+   The name #PIN_MOTOR2_IO_0 can be replace by MOTOR2_IO[0].
+   The name #PIN_MOTOR2_PWM_0 can be replace by MOTOR2_PWM[0].
+   
+   */
 #ifndef _ZMOTOR_H
 #define _ZMOTOR_H
 #define ROS_USED
@@ -55,57 +74,61 @@
 
 #define MCP23017_ADDR_BASE 0x20
 #define PCA9685_ADDR_BASE 0x40
-#define MOTOR2_IO_0  (MCP23017_GPA7 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_1  (MCP23017_GPA6 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_2  (MCP23017_GPA5 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_3  (MCP23017_GPA4 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_4  (MCP23017_GPA3 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_5  (MCP23017_GPA2 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_6  (MCP23017_GPA1 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_7  (MCP23017_GPA0 | MCP23017_ADDR_BASE<<16)
+   
 
-#define MOTOR2_IO_8  (MCP23017_GPB7 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_9  (MCP23017_GPB6 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_10 (MCP23017_GPB5 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_11 (MCP23017_GPB4 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_12 (MCP23017_GPB3 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_13 (MCP23017_GPB2 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_14 (MCP23017_GPB1 | MCP23017_ADDR_BASE<<16)
-#define MOTOR2_IO_15 (MCP23017_GPB0 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_0  (MCP23017_GPA7 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_1  (MCP23017_GPA6 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_2  (MCP23017_GPA5 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_3  (MCP23017_GPA4 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_4  (MCP23017_GPA3 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_5  (MCP23017_GPA2 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_6  (MCP23017_GPA1 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_7  (MCP23017_GPA0 | MCP23017_ADDR_BASE<<16)
 
-#define MOTOR2_IO_A    MOTOR2_IO_10
-#define MOTOR2_IO_B    MOTOR2_IO_11
-#define MOTOR2_IO_C    MOTOR2_IO_12
-#define MOTOR2_IO_D    MOTOR2_IO_13
-#define MOTOR2_IO_E    MOTOR2_IO_14
-#define MOTOR2_IO_F    MOTOR2_IO_15
+#define PIN_MOTOR2_IO_8  (MCP23017_GPB7 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_9  (MCP23017_GPB6 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_10 (MCP23017_GPB5 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_11 (MCP23017_GPB4 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_12 (MCP23017_GPB3 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_13 (MCP23017_GPB2 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_14 (MCP23017_GPB1 | MCP23017_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_15 (MCP23017_GPB0 | MCP23017_ADDR_BASE<<16)
 
-#define MOTOR2_PWM_0  (PCA9685_LED15 | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_1  (PCA9685_LED14 | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_2  (PCA9685_LED13 | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_3  (PCA9685_LED12 | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_4  (PCA9685_LED11 | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_5  (PCA9685_LED10 | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_6  (PCA9685_LED9  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_7  (PCA9685_LED8  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_IO_A    PIN_MOTOR2_IO_10
+#define PIN_MOTOR2_IO_B    PIN_MOTOR2_IO_11
+#define PIN_MOTOR2_IO_C    PIN_MOTOR2_IO_12
+#define PIN_MOTOR2_IO_D    PIN_MOTOR2_IO_13
+#define PIN_MOTOR2_IO_E    PIN_MOTOR2_IO_14
+#define PIN_MOTOR2_IO_F    PIN_MOTOR2_IO_15
 
-#define MOTOR2_PWM_8  (PCA9685_LED7  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_9  (PCA9685_LED6  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_10 (PCA9685_LED5  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_11 (PCA9685_LED4  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_12 (PCA9685_LED3  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_13 (PCA9685_LED2  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_14 (PCA9685_LED1  | PCA9685_ADDR_BASE<<16)
-#define MOTOR2_PWM_15 (PCA9685_LED0  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_0  (PCA9685_LED15 | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_1  (PCA9685_LED14 | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_2  (PCA9685_LED13 | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_3  (PCA9685_LED12 | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_4  (PCA9685_LED11 | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_5  (PCA9685_LED10 | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_6  (PCA9685_LED9  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_7  (PCA9685_LED8  | PCA9685_ADDR_BASE<<16)
 
-#define MOTOR2_PWM_A  MOTOR2_PWM_10
-#define MOTOR2_PWM_B  MOTOR2_PWM_11
-#define MOTOR2_PWM_C  MOTOR2_PWM_12
-#define MOTOR2_PWM_D  MOTOR2_PWM_13
-#define MOTOR2_PWM_E  MOTOR2_PWM_14
-#define MOTOR2_PWM_F  MOTOR2_PWM_15
+#define PIN_MOTOR2_PWM_8  (PCA9685_LED7  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_9  (PCA9685_LED6  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_10 (PCA9685_LED5  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_11 (PCA9685_LED4  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_12 (PCA9685_LED3  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_13 (PCA9685_LED2  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_14 (PCA9685_LED1  | PCA9685_ADDR_BASE<<16)
+#define PIN_MOTOR2_PWM_15 (PCA9685_LED0  | PCA9685_ADDR_BASE<<16)
 
+#define PIN_MOTOR2_PWM_A  PIN_MOTOR2_PWM_10
+#define PIN_MOTOR2_PWM_B  PIN_MOTOR2_PWM_11
+#define PIN_MOTOR2_PWM_C  PIN_MOTOR2_PWM_12
+#define PIN_MOTOR2_PWM_D  PIN_MOTOR2_PWM_13
+#define PIN_MOTOR2_PWM_E  PIN_MOTOR2_PWM_14
+#define PIN_MOTOR2_PWM_F  PIN_MOTOR2_PWM_15
+   
 
+extern uint32_t MOTOR2_PWM[];
+extern uint32_t MOTOR2_IO[];
 
 
 /**************************************************************************/
@@ -124,35 +147,55 @@ class Zmotor2 : public PinExtender  {
   void SWRST (void);
 bool check();
 
-  void pinMode(uint32_t p, uint8_t d);
-  void digitalWrite(uint32_t p, uint8_t d);
-  uint8_t digitalRead(uint32_t p);
+  void pinMode(uint32_t p//!< the pin requested, it is the instance number or the generic number .
+               , uint8_t d);
+  void digitalWrite(uint32_t p//!< the pin requested, it is the instance number or the generic number .
+                    , uint8_t d);
+  uint8_t digitalRead(uint32_t p//!< the pin requested, it is the instance number or the generic number .
+                      );
   /*
  * \brief Writes an analog value (PWM wave) to a pin.
  *
  * \param ulPin
  * \param ulValue
  */
- void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
+ void analogWrite( uint32_t ulPin //!< the pin requested, it is the instance number or the generic number .
+                  , uint32_t ulValue ) ;
 
   void analogWriteResolution(int res);
 
-  
- uint32_t getPin(uint32_t ulPin);
-  void reset(void);
  
-  uint32_t analogRead( uint32_t pin );
-
+  /** return the pin number of current instance from the generioc name */
+ uint32_t getPin(uint32_t ulchannel//!< the generic pin number requested like #PIN_MOTOR2_IO_0 or #PIN_MOTOR2_PWM_0
+                 );
+ 
+  /** return the IO pin number of current instance */
+ uint32_t getPinIo(uint32_t ulchannel//!< the channel requested between 0 to 15
+                 );
+ /** return the PWM pin number of current instance */
+ uint32_t getPinPwm(uint32_t ulchannel//!< the channel requested between 0 to 15
+                 );
+ void reset(void);
+ 
+  uint32_t analogRead( uint32_t pin //!< the pin requested, it is the instance number or the generic number .
+                      );
+  /** set the PWM freqeuncy.
+  */
   void setPWMFreq(float freq);
-  
-  void cmd( uint32_t ulPin, int32_t ulValue ) ;
- 
+  /** apply a PWM command on motor connected on IO[channel] and PWM[channel]
+  */
+  void cmd( uint32_t channel//!< the channel requested between 0 to 15 like  #MOTOR2_0
+           , 
+           int32_t ulValue //!< the PWM value requested between -4096 to 4095
+           ) ;
+  bool test();
  #ifdef ROS_USED 
     void setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,void callbackinstance( const std_msgs::Int16& cmd_msg),int pin);
 	void setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,int pin);
 	void loop();
 #endif 
-
+ ZPCA9685  pwm;
+ ZMCP23017  io;
   protected:
        bool acceptlocal(uint32_t p);
  private: 
@@ -161,8 +204,7 @@ bool check();
     ros::NodeHandle  *nh;    
     ros::Subscriber<std_msgs::Int16> *subscriber[16];
 #endif
- ZPCA9685  pwm;
- ZMCP23017  io;
+
  
 };
 

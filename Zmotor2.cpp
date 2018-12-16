@@ -24,6 +24,9 @@
 #define DEBUG(a) a
 //#define DEBUG(a) {}
 
+uint32_t MOTOR2_PWM[]={PIN_MOTOR2_PWM_0,PIN_MOTOR2_PWM_1,PIN_MOTOR2_PWM_2,PIN_MOTOR2_PWM_3,PIN_MOTOR2_PWM_4,PIN_MOTOR2_PWM_5,PIN_MOTOR2_PWM_6,PIN_MOTOR2_PWM_7,PIN_MOTOR2_PWM_8,PIN_MOTOR2_PWM_9,PIN_MOTOR2_PWM_10,PIN_MOTOR2_PWM_11,PIN_MOTOR2_PWM_12,PIN_MOTOR2_PWM_13,PIN_MOTOR2_PWM_14,PIN_MOTOR2_PWM_15};
+uint32_t MOTOR2_IO[]={PIN_MOTOR2_IO_0,PIN_MOTOR2_IO_1,PIN_MOTOR2_IO_2,PIN_MOTOR2_IO_3,PIN_MOTOR2_IO_4,PIN_MOTOR2_IO_5,PIN_MOTOR2_IO_6,PIN_MOTOR2_IO_7,PIN_MOTOR2_IO_8,PIN_MOTOR2_IO_9,PIN_MOTOR2_IO_10,PIN_MOTOR2_IO_11,PIN_MOTOR2_IO_12,PIN_MOTOR2_IO_13,PIN_MOTOR2_IO_14,PIN_MOTOR2_IO_15};
+
 /**************************************************************************/
 /*! 
     @brief  Instantiates a new Zmotor2 PWM driver chip with the I2C address on the Wire interface. On Due we use Wire1 since its the interface on the 'default' I2C pins.
@@ -49,12 +52,23 @@ Zmotor2::Zmotor2() : PinExtender(),  io(),  pwm()
     i2c->begin();
 	  io.begin(i2c, addrio);
       pwm.begin(i2c, addrpwm);
-    for (int i=0;i<16;i++)
-     io.pinMode(io.getPin(i), OUTPUT);
 	 pwm.analogWriteResolution( 12);
 	 pwm.setPWMFreq(1526);
+    for (int i=0;i<16;i++)
+     io.pinMode(io.getPin(i), OUTPUT);
+    for (int i=0;i<16;i++)
+     pwm.pinMode(pwm.getPin(i), OUTPUT);
+      
 	 
 }
+
+
+  bool Zmotor2::test()
+  {
+    bool b=pwm.test();
+    b&=io.test();
+  return b;
+  }
 /**************************************************************************/
 /*! 
     @brief  Setups the I2C interface and hardware
@@ -159,20 +173,22 @@ else
  }
 void Zmotor2::cmd( uint32_t ulchannel, int32_t siValue ) 
 {
-	uint32_t ulPinpwm=pwm.getPin(ulchannel);//MOTOR2_0
-	uint32_t ulPinio=io.getPin(ulchannel);//MOTOR2_0
+  ulchannel&=0xF;
+	uint32_t ulPinpwm=pwm.getPin(MOTOR2_PWM[ulchannel]);//MOTOR2_0
+	uint32_t ulPinio=io.getPin(MOTOR2_IO[ulchannel]);//MOTOR2_0
+        
 	if(siValue>=0)
 	{
-	analogWrite(  ulPinpwm,  siValue ) ;
-	digitalWrite( ulPinio,  LOW);
+	pwm.analogWrite(  ulPinpwm,  siValue ) ;
+	io.digitalWrite( ulPinio,  HIGH);
 	}
 	else
 	{
-		siValue=4096- siValue;
+		siValue=4096+ siValue;
 		if(siValue<0)
 			siValue=0;
-	analogWrite(  ulPinpwm, siValue  ) ;
-	digitalWrite( ulPinio, HIGH);
+	pwm.analogWrite(  ulPinpwm, siValue  ) ;
+	io.digitalWrite( ulPinio, LOW);
 	}
 	
 }
@@ -180,9 +196,9 @@ void Zmotor2::cmd( uint32_t ulchannel, int32_t siValue )
  uint32_t Zmotor2::getPin(uint32_t ulPin)
  {
 	 if ((ulPin & (PCA9685_ADDR_BASE<<16))==(PCA9685_ADDR_BASE<<16))
-	 return pwm.getPin( ulPin);
+	 return pwm.getPin( pwm.getPin(ulPin));
  	 if ((ulPin & (MCP23017_ADDR_BASE<<16))==(MCP23017_ADDR_BASE<<16))
-	 return io.getPin( ulPin); 
+	 return io.getPin( io.getPin(ulPin)); 
      return NO_CHANNEL;
  }
  /*
