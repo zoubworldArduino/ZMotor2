@@ -70,7 +70,7 @@ void setup() {
   WireMotor2.begin();
   
         
-if (1)
+if (0)
 {
 MySerial.begin(57600);  //115200 //9600
 	MySerial.println("Setup");
@@ -83,7 +83,7 @@ MySerial.begin(57600);  //115200 //9600
     card_motor2.begin(&(WireMotor2),0x21,0x41);
     setPinExtender(&card_motor2);
     
-    
+    /*
     card_motor2.io.digitalWordWrite(0);
       MySerial.println("MCP23017 DUMP");
     dump(MySerial,WireMotor2, 0x21,0, 0x1A+1);
@@ -165,13 +165,93 @@ MySerial.begin(57600);  //115200 //9600
     digitalWrite(pin1, LOW);   
      digitalWrite(pin2, LOW);   
    
-   }
+   }*/
 }
 int32_t ulValue=0;
 void loop()
 {
 card_motor2.loop();
-  /*
+
+
+
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.digitalWriteIO( i, LOW ) ;// card_motor2.digitalWriteIO( i+1, HIGH ) ;
+  delay(25);
+}
+
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.digitalWritePWM( i, LOW ) ;//card_motor2.digitalWritePWM( i+1, HIGH ) ;
+  delay(25);
+}
+
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.digitalWriteIO( i, HIGH ) ;//card_motor2.digitalWriteIO( i+1, LOW ) ;
+   delay(25);
+}
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.digitalWritePWM( i, HIGH ) ;//card_motor2.digitalWritePWM( i+1, LOW ) ;
+  delay(25);
+}
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.digitalWriteIO( i, LOW ) ;// card_motor2.digitalWriteIO( i+1, HIGH ) ;
+  delay(25);
+}
+
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.digitalWritePWM( i, LOW ) ;//card_motor2.digitalWritePWM( i+1, HIGH ) ;
+  delay(25);
+}
+
+int value=2048;
+for(int i=0;i<16;i+=2)
+{
+  card_motor2.analogWritePWM( i, value ) ;
+  delay(25);
+}
+
+for(int i=8;i<16;i+=2)
+{
+  card_motor2.cmd( i, 0 ) ;
+  delay(250);
+  card_motor2.cmd( i, 1024 ) ;
+  delay(250);
+  card_motor2.cmd( i, 4096 ) ;
+  delay(250);
+  card_motor2.cmd( i, 0 ) ;
+  delay(250);  
+}
+for(int i=8;i<16;i+=2)
+{
+  card_motor2.cmd( i, 0 ) ;
+  delay(250);
+  card_motor2.cmd( i, -1024 ) ;
+  delay(250);
+  card_motor2.cmd( i, -4096 ) ;
+  delay(250);
+  card_motor2.cmd( i, 0 ) ;
+  delay(250);  
+}
+  delay(1000);
+  card_motor2.cmd( 0x0, 0 ) ;
+  card_motor2.cmd( 0x2, 0 ) ;
+  card_motor2.cmd( 0x4, 0 ) ;card_motor2.cmd( 0x6, 0 ) ;
+  delay(1000);
+  card_motor2.cmd( 0x0, 2096 ) ;
+  card_motor2.cmd( 0x2, 2096 ) ;
+  card_motor2.cmd( 0x4, 2096 ) ;card_motor2.cmd( 0x6, 2096 ) ;
+  delay(1000);
+  card_motor2.cmd( 0x0, -2096 ) ;
+  card_motor2.cmd( 0x2, -2096 ) ;
+  card_motor2.cmd( 0x4, -2096 ) ;card_motor2.cmd( 0x6, -2096 ) ;
+  delay(1000);
+  
+/*
   for(int ulPin=0;ulPin<16;ulPin+=2)
   card_motor2.cmd( ulPin, ulValue ) ;*/
   int pin2=card_motor2.getPin(MOTOR2_PWM[1]);

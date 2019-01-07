@@ -54,11 +54,14 @@
 #include <std_msgs/Int16.h>
 #endif 
 
+#define ISBUGL9110 1
 
 #include "PinExtender.h"
 #include <ZMCP23017.h>
 #include <ZPCA9685.h>
-    
+   /** @name generic channel of the board : 
+*/
+//@{
 #define MOTOR2_0 0
 #define MOTOR2_1 1
 #define MOTOR2_2 2
@@ -81,11 +84,11 @@
 #define MOTOR2_D MOTOR2_13
 #define MOTOR2_E MOTOR2_14
 #define MOTOR2_F MOTOR2_15
+//@}
 
-#define MCP23017_ADDR_BASE 0x20
-#define PCA9685_ADDR_BASE 0x40
-   
-
+/** @name generic pin name accoding to the channel number of the board: MOTOR3_[pin]_[channel]
+*/
+//@{
 #define PIN_MOTOR2_IO_0  (MCP23017_GPA7 | MCP23017_ADDR_BASE<<16)
 #define PIN_MOTOR2_IO_1  (MCP23017_GPA6 | MCP23017_ADDR_BASE<<16)
 #define PIN_MOTOR2_IO_2  (MCP23017_GPA5 | MCP23017_ADDR_BASE<<16)
@@ -135,8 +138,8 @@
 #define PIN_MOTOR2_PWM_D  PIN_MOTOR2_PWM_13
 #define PIN_MOTOR2_PWM_E  PIN_MOTOR2_PWM_14
 #define PIN_MOTOR2_PWM_F  PIN_MOTOR2_PWM_15
-   
 
+//@}
 extern uint32_t MOTOR2_PWM[];
 extern uint32_t MOTOR2_IO[];
 
@@ -163,6 +166,9 @@ bool check();
                     , uint8_t d);
   uint8_t digitalRead(uint32_t p//!< the pin requested, it is the instance number or the generic number .
                       );
+  void digitalWritePWM(uint32_t ulchannel, uint8_t ulValue);
+void digitalWriteIO(uint32_t ulchannel, uint8_t ulValue);
+ void analogWritePWM( uint32_t ulchannel, uint32_t ulValue, bool inverted=false ) ;
   /*
  * \brief Writes an analog value (PWM wave) to a pin.
  *

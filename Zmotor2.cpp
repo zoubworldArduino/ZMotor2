@@ -163,21 +163,42 @@ else
 void Zmotor2::cmd( uint32_t ulchannel, int32_t siValue ) 
 {
   ulchannel&=0xF;
-	uint32_t ulPinpwm=pwm.getPin(MOTOR2_PWM[ulchannel]);//MOTOR2_0
-	uint32_t ulPinio=io.getPin(MOTOR2_IO[ulchannel]);//MOTOR2_0
+	
         
 	if(siValue>=0)
 	{
-	pwm.analogWrite(  ulPinpwm,  siValue ) ;
-	io.digitalWrite( ulPinio,  HIGH);
+          analogWritePWM(ulchannel,siValue);
+	  digitalWriteIO( ulchannel,  LOW);
+         /*
+   #ifdef ISBUGL9110
+    if (ulchannel%2==0)
+      ulchannel=ulchannel+1;
+    else
+      ulchannel=ulchannel-1;
+    int ulPinpwm1=pwm.getPin(MOTOR2_PWM[ulchannel]);
+    pwm.digitalWrite(ulPinpwm1,LOW);
+  #endif     
+	*/
+	
 	}
 	else
 	{
-		siValue=4096+ siValue;
-		if(siValue<0)
-			siValue=0;
-	pwm.analogWrite(  ulPinpwm, siValue  ) ;
-	io.digitalWrite( ulPinio, LOW);
+          siValue=4096+ siValue;
+	  if(siValue<0)
+	  siValue=0;
+          analogWritePWM(ulchannel,siValue);
+	  digitalWriteIO( ulchannel,  HIGH);
+          /*
+           #ifdef ISBUGL9110
+    if (ulchannel%2==0)
+      ulchannel=ulchannel+1;
+    else
+      ulchannel=ulchannel-1;
+    int ulPinpwm1=pwm.getPin(MOTOR2_PWM[ulchannel]);
+    pwm.digitalWrite(ulPinpwm1,HIGH);
+  #endif     
+	*/
+	
 	}
 	
 }
@@ -205,6 +226,56 @@ void Zmotor2::cmd( uint32_t ulchannel, int32_t siValue )
 { 
   return 0;
 }
+
+void Zmotor2::digitalWritePWM(uint32_t ulchannel, uint8_t ulValue)
+{
+    ulchannel&=0xF;
+	uint32_t ulPinpwm=pwm.getPin(MOTOR2_PWM[ulchannel]);//MOTOR2_0
+pwm.digitalWrite(ulPinpwm,ulValue);
+  #ifdef ISBUGL9110
+    if (ulchannel%2==0)
+      ulchannel=ulchannel+1;
+    else
+      ulchannel=ulchannel-1;
+    uint32_t ulPinpwm1=pwm.getPin(MOTOR2_PWM[ulchannel]);//MOTOR2_0
+    pwm.digitalWrite(ulPinpwm1,ulValue==LOW?HIGH:LOW);
+  #endif    
+}
+ void Zmotor2::analogWritePWM( uint32_t ulchannel, uint32_t ulValue, bool inverted ) 
+ {   
+    ulchannel&=0xF;
+    uint32_t ulPinpwm=pwm.getPin(MOTOR2_PWM[ulchannel]);//MOTOR2_0
+   pwm.analogWrite(ulPinpwm,ulValue,inverted);
+   
+   #ifdef ISBUGL9110
+    if (ulchannel%2==0)
+      ulchannel=ulchannel+1;
+    else
+      ulchannel=ulchannel-1;
+    int ulPinpwm1=pwm.getPin(MOTOR2_PWM[ulchannel]);
+   // pwm.digitalWrite( ulPinpwm1, LOW ) ;
+    pwm.analogWrite(ulPinpwm1,ulValue,!inverted);
+    /*
+    uint32_t ulPinpwm1=pwm.getPin(MOTOR2_PWM[ulchannel]);//MOTOR2_0
+    pwm.analogWrite(ulPinpwm1,ulValue,true);*/
+  #endif     
+ }
+void Zmotor2::digitalWriteIO(uint32_t ulchannel, uint8_t ulValue)
+{
+    ulchannel&=0xF;
+    uint32_t ulPinio=io.getPin(MOTOR2_IO[ulchannel]);//MOTOR2_0
+    io.digitalWrite(ulPinio,ulValue);
+
+  #ifdef ISBUGL9110
+    if (ulchannel%2==0)
+      ulchannel=ulchannel+1;
+    else
+      ulchannel=ulchannel-1;
+    uint32_t ulPinio1=io.getPin(MOTOR2_IO[ulchannel]);//MOTOR2_0
+    io.digitalWrite(ulPinio1,ulValue==LOW?HIGH:LOW);
+  #endif
+}
+
 void Zmotor2::digitalWrite(uint32_t ulPin, uint8_t ulValue)
 {
 	if (pwm.acceptlocal( ulPin))
