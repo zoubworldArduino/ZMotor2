@@ -383,6 +383,7 @@ void Zmotor2::setup( ros::NodeHandle * myNodeHandle,	const char   *	topic ,void 
 	pin=pin&0xf;
   nh=myNodeHandle;
   subscriber[pin]=new ros::Subscriber<std_msgs::Int16> (topic, callbackinstance); 
+  assert(subscriber[pin]!=0);
   nh->subscribe(*subscriber[pin]); 
   DEBUG(nh->loginfo("Zmotor2::setup()")); 
   DEBUG(nh->loginfo(topic)); 
