@@ -5,7 +5,7 @@
 */
 #include <assert.h>
 
-#include "zmotor2.h"
+#include "Zmotor2.h"
 
 #include <Wire.h>
 
